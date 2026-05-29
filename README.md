@@ -4,12 +4,7 @@ A private, beautiful website built as a gesture of love. Features a photo galler
 
 ---
 
-## 🌐 Live Site
-```
-https://uzzy.ddns.net
-```
 
----
 
 ## 🏗️ Architecture
 
