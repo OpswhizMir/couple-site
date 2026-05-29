@@ -1,0 +1,1190 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>You & Me — Our Little World 💕</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet" />
+  <style>
+    /* ── Variables ── */
+    :root {
+      --rose:        #e8374a;
+      --rose-light:  #fce8eb;
+      --rose-pale:   #fdf4f5;
+      --blush:       #f4b8c1;
+      --mauve:       #9b5de5;
+      --gold:        #f4a261;
+      --ink:         #2d1b24;
+      --ink-soft:    #6b4552;
+      --white:       #fffafb;
+      --card-bg:     rgba(255,255,255,0.85);
+      --shadow:      0 8px 40px rgba(232,55,74,0.10);
+      --radius:      18px;
+      --api:         'http://localhost:3001';
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: var(--rose-pale);
+      color: var(--ink);
+      overflow-x: hidden;
+    }
+
+    /* ── Grain overlay ── */
+    body::before {
+      content: '';
+      position: fixed; inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.03'/%3E%3C/svg%3E");
+      pointer-events: none; z-index: 1000; opacity: 0.4;
+    }
+
+    /* ── Scrollbar ── */
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: var(--rose-pale); }
+    ::-webkit-scrollbar-thumb { background: var(--blush); border-radius: 99px; }
+
+    /* ── Nav ── */
+    nav {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 900;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 16px 40px;
+      background: rgba(253,244,245,0.85);
+      backdrop-filter: blur(16px);
+      border-bottom: 1px solid rgba(244,184,193,0.3);
+    }
+
+    .nav-logo {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 1.4rem; font-weight: 600;
+      color: var(--rose); letter-spacing: 0.02em;
+    }
+
+    .nav-links { display: flex; gap: 28px; list-style: none; }
+    .nav-links a {
+      font-size: 0.85rem; font-weight: 500; letter-spacing: 0.08em;
+      text-transform: uppercase; text-decoration: none;
+      color: var(--ink-soft); transition: color 0.2s;
+    }
+    .nav-links a:hover { color: var(--rose); }
+
+    /* ── Hero ── */
+    #hero {
+      min-height: 100vh;
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      text-align: center; padding: 120px 20px 60px;
+      background: radial-gradient(ellipse 80% 60% at 50% 20%, #ffe0e6 0%, var(--rose-pale) 70%);
+      position: relative; overflow: hidden;
+    }
+
+    .hero-accent {
+      position: absolute;
+      border-radius: 50%;
+      filter: blur(80px);
+      opacity: 0.35;
+      pointer-events: none;
+    }
+    .hero-accent-1 { width: 500px; height: 500px; background: #ffd6dd; top: -100px; left: -100px; }
+    .hero-accent-2 { width: 400px; height: 400px; background: #e8c2ff; bottom: -80px; right: -80px; }
+
+    .hero-since {
+      font-size: 0.78rem; letter-spacing: 0.2em; text-transform: uppercase;
+      color: var(--ink-soft); margin-bottom: 20px; opacity: 0.7;
+    }
+
+    #hero h1 {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: clamp(3.5rem, 9vw, 8rem);
+      font-weight: 300; line-height: 1.0;
+      color: var(--ink);
+      animation: fadeUp 1.2s ease both;
+    }
+
+    #hero h1 em {
+      font-style: italic; color: var(--rose);
+    }
+
+    .hero-sub {
+      margin-top: 24px;
+      font-family: 'Cormorant Garamond', serif;
+      font-style: italic; font-size: 1.35rem;
+      color: var(--ink-soft);
+      animation: fadeUp 1.2s 0.3s ease both;
+      max-width: 500px;
+    }
+
+    .hero-counter {
+      margin-top: 50px;
+      display: flex; gap: 40px;
+      animation: fadeUp 1.2s 0.5s ease both;
+    }
+
+    .counter-block { text-align: center; }
+    .counter-num {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 3rem; font-weight: 600; color: var(--rose);
+      line-height: 1;
+    }
+    .counter-label { font-size: 0.75rem; letter-spacing: 0.15em; text-transform: uppercase; color: var(--ink-soft); margin-top: 4px; }
+
+    .scroll-cue {
+      position: absolute; bottom: 40px;
+      display: flex; flex-direction: column; align-items: center; gap: 8px;
+      font-size: 0.75rem; letter-spacing: 0.1em; text-transform: uppercase;
+      color: var(--ink-soft); opacity: 0.5;
+      animation: bounce 2s infinite;
+    }
+    .scroll-cue svg { width: 20px; height: 20px; }
+
+    @keyframes bounce { 0%,100% { transform: translateY(0); } 50% { transform: translateY(6px); } }
+    @keyframes fadeUp { from { opacity:0; transform: translateY(30px); } to { opacity:1; transform: translateY(0); } }
+
+    /* ── Section wrapper ── */
+    section { padding: 100px 20px; }
+    .section-inner { max-width: 1000px; margin: 0 auto; }
+
+    .section-label {
+      font-size: 0.72rem; letter-spacing: 0.22em; text-transform: uppercase;
+      color: var(--rose); margin-bottom: 12px; font-weight: 500;
+    }
+
+    .section-title {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: clamp(2rem, 4vw, 3.2rem);
+      font-weight: 300; line-height: 1.2;
+      color: var(--ink); margin-bottom: 50px;
+    }
+
+    /* ── Gallery ── */
+    #gallery { background: var(--white); }
+
+    .gallery-controls {
+      display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 30px;
+    }
+
+    .filter-btn {
+      padding: 8px 20px; border-radius: 99px;
+      border: 1.5px solid var(--blush);
+      background: transparent; cursor: pointer;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.82rem; color: var(--ink-soft);
+      transition: all 0.2s;
+    }
+    .filter-btn.active, .filter-btn:hover {
+      background: var(--rose); border-color: var(--rose);
+      color: #fff;
+    }
+
+    .gallery-upload {
+      margin-bottom: 30px;
+      display: flex; gap: 12px; flex-wrap: wrap; align-items: center;
+    }
+
+    .upload-label {
+      display: inline-flex; align-items: center; gap: 8px;
+      padding: 10px 22px; border-radius: 99px;
+      background: var(--rose-light); color: var(--rose);
+      cursor: pointer; font-size: 0.85rem; font-weight: 500;
+      border: 1.5px dashed var(--blush);
+      transition: all 0.2s;
+    }
+    .upload-label:hover { background: #fcd5da; }
+    #photoInput { display: none; }
+
+    .caption-input, .category-select {
+      padding: 10px 16px; border-radius: 12px;
+      border: 1.5px solid var(--blush);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.85rem; color: var(--ink);
+      background: #fff; outline: none;
+    }
+    .caption-input:focus, .category-select:focus { border-color: var(--rose); }
+
+    .photo-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+      gap: 16px;
+    }
+
+    .photo-card {
+      border-radius: var(--radius); overflow: hidden;
+      position: relative; aspect-ratio: 1;
+      background: var(--rose-light);
+      box-shadow: var(--shadow);
+      transition: transform 0.3s ease;
+    }
+    .photo-card:hover { transform: scale(1.02); }
+    .photo-card img { width: 100%; height: 100%; object-fit: cover; display: block; }
+
+    .photo-caption {
+      position: absolute; bottom: 0; left: 0; right: 0;
+      padding: 30px 12px 12px;
+      background: linear-gradient(to top, rgba(45,27,36,0.75), transparent);
+      color: #fff; font-size: 0.82rem;
+      opacity: 0; transition: opacity 0.3s;
+    }
+    .photo-card:hover .photo-caption { opacity: 1; }
+
+    .photo-delete {
+      position: absolute; top: 8px; right: 8px;
+      width: 28px; height: 28px; border-radius: 50%;
+      background: rgba(232,55,74,0.8); border: none;
+      color: #fff; font-size: 0.9rem; cursor: pointer;
+      display: none; align-items: center; justify-content: center;
+      transition: background 0.2s;
+    }
+    .photo-card:hover .photo-delete { display: flex; }
+    .photo-delete:hover { background: var(--rose); }
+
+    .photo-placeholder {
+      display: flex; flex-direction: column; align-items: center;
+      justify-content: center; gap: 12px; padding: 40px 20px;
+      color: var(--ink-soft); opacity: 0.5; font-size: 0.85rem;
+      grid-column: 1/-1; text-align: center;
+    }
+    .photo-placeholder span { font-size: 3rem; }
+
+    /* ── Timeline ── */
+    #timeline { background: var(--rose-pale); }
+
+    .timeline-track {
+      position: relative;
+      padding-left: 40px;
+    }
+    .timeline-track::before {
+      content: '';
+      position: absolute; left: 8px; top: 0; bottom: 0;
+      width: 2px; background: linear-gradient(to bottom, var(--blush), var(--mauve));
+      border-radius: 2px;
+    }
+
+    .tl-item {
+      position: relative; margin-bottom: 50px;
+      animation: fadeUp 0.6s ease both;
+    }
+
+    .tl-dot {
+      position: absolute; left: -36px; top: 4px;
+      width: 20px; height: 20px; border-radius: 50%;
+      background: var(--rose); border: 3px solid var(--white);
+      box-shadow: 0 0 0 3px var(--blush);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 0.7rem;
+    }
+
+    .tl-date {
+      font-size: 0.75rem; letter-spacing: 0.15em; text-transform: uppercase;
+      color: var(--rose); font-weight: 500; margin-bottom: 6px;
+    }
+
+    .tl-title {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 1.5rem; font-weight: 400; color: var(--ink);
+      margin-bottom: 6px;
+    }
+
+    .tl-body { color: var(--ink-soft); font-size: 0.9rem; line-height: 1.7; }
+
+    /* ── Poetry ── */
+    #poetry { background: var(--ink); }
+
+    #poetry .section-label { color: var(--blush); }
+    #poetry .section-title { color: var(--white); }
+
+    .poems-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 24px;
+    }
+
+    .poem-card {
+      background: rgba(255,255,255,0.06);
+      border: 1px solid rgba(244,184,193,0.2);
+      border-radius: var(--radius);
+      padding: 32px 28px;
+      position: relative;
+      transition: border-color 0.3s, transform 0.3s;
+    }
+    .poem-card:hover {
+      border-color: rgba(244,184,193,0.5);
+      transform: translateY(-4px);
+    }
+
+    .poem-card::before {
+      content: '"';
+      position: absolute; top: 16px; left: 24px;
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 5rem; color: rgba(244,184,193,0.2);
+      line-height: 1; pointer-events: none;
+    }
+
+    .poem-title {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 1.5rem; font-weight: 400; color: var(--white);
+      margin-bottom: 16px; position: relative;
+    }
+
+    .poem-body {
+      font-family: 'Cormorant Garamond', serif;
+      font-style: italic; font-size: 1rem;
+      line-height: 1.9; color: rgba(255,255,255,0.65);
+      white-space: pre-line;
+    }
+
+    .poem-author {
+      margin-top: 20px; font-size: 0.78rem;
+      letter-spacing: 0.12em; text-transform: uppercase;
+      color: var(--blush); opacity: 0.7;
+    }
+
+    .poem-actions {
+      display: flex; gap: 8px; margin-top: 16px;
+    }
+    .poem-btn {
+      padding: 6px 14px; border-radius: 99px; border: 1px solid rgba(255,255,255,0.15);
+      background: transparent; color: rgba(255,255,255,0.5);
+      font-size: 0.75rem; cursor: pointer; transition: all 0.2s;
+    }
+    .poem-btn:hover { background: rgba(255,255,255,0.1); color: #fff; }
+    .poem-btn.delete:hover { background: rgba(232,55,74,0.3); border-color: var(--rose); color: #ffa0a8; }
+
+    /* Poem form */
+    .poem-form {
+      background: rgba(255,255,255,0.05);
+      border: 1px dashed rgba(244,184,193,0.3);
+      border-radius: var(--radius); padding: 30px;
+      margin-bottom: 30px;
+    }
+
+    .form-row { display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 12px; }
+
+    .form-input, .form-textarea {
+      flex: 1; min-width: 200px;
+      padding: 12px 16px; border-radius: 12px;
+      border: 1.5px solid rgba(244,184,193,0.3);
+      background: rgba(255,255,255,0.07);
+      color: var(--white); font-family: 'DM Sans', sans-serif;
+      font-size: 0.9rem; outline: none;
+      transition: border-color 0.2s;
+    }
+    .form-input::placeholder, .form-textarea::placeholder { color: rgba(255,255,255,0.3); }
+    .form-input:focus, .form-textarea:focus { border-color: var(--blush); }
+    .form-textarea { min-height: 120px; resize: vertical; }
+
+    /* ── Date Schedule ── */
+    #dates { background: var(--white); }
+
+    .dates-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+      gap: 20px;
+    }
+
+    .date-card {
+      border-radius: var(--radius);
+      padding: 28px 24px;
+      background: var(--card-bg);
+      border: 1.5px solid var(--rose-light);
+      box-shadow: var(--shadow);
+      position: relative;
+      transition: transform 0.3s;
+    }
+    .date-card:hover { transform: translateY(-4px); }
+    .date-card.done { opacity: 0.55; }
+    .date-card.done .date-title { text-decoration: line-through; }
+
+    .date-emoji {
+      font-size: 2.2rem; margin-bottom: 14px; display: block;
+    }
+
+    .date-title {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 1.4rem; font-weight: 400;
+      color: var(--ink); margin-bottom: 8px;
+    }
+
+    .date-desc { font-size: 0.85rem; color: var(--ink-soft); line-height: 1.6; margin-bottom: 12px; }
+
+    .date-meta {
+      display: flex; flex-direction: column; gap: 4px;
+      font-size: 0.78rem; color: var(--rose);
+      font-weight: 500;
+    }
+
+    .date-countdown {
+      margin-top: 12px;
+      display: inline-block;
+      padding: 4px 12px; border-radius: 99px;
+      background: var(--rose-light); color: var(--rose);
+      font-size: 0.78rem; font-weight: 500;
+    }
+
+    .date-actions { display: flex; gap: 8px; margin-top: 16px; }
+    .date-btn {
+      padding: 6px 14px; border-radius: 99px;
+      border: 1.5px solid var(--blush);
+      background: transparent; color: var(--ink-soft);
+      font-size: 0.78rem; cursor: pointer; transition: all 0.2s;
+    }
+    .date-btn:hover { background: var(--rose-light); color: var(--rose); }
+    .date-btn.done-btn { background: var(--rose); border-color: var(--rose); color: #fff; }
+
+    /* ── Savings ── */
+    #savings { background: var(--rose-pale); }
+
+    .savings-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 24px;
+    }
+
+    .saving-card {
+      background: var(--card-bg); border-radius: var(--radius);
+      padding: 28px 24px; box-shadow: var(--shadow);
+      border: 1px solid rgba(255,255,255,0.8);
+    }
+
+    .saving-emoji { font-size: 2rem; margin-bottom: 12px; display: block; }
+    .saving-label {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 1.3rem; margin-bottom: 6px; color: var(--ink);
+    }
+
+    .saving-amounts {
+      display: flex; justify-content: space-between; align-items: baseline;
+      margin-bottom: 12px;
+    }
+
+    .saving-current {
+      font-size: 1.8rem; font-weight: 600; color: var(--rose);
+      font-family: 'Cormorant Garamond', serif;
+    }
+
+    .saving-target { font-size: 0.85rem; color: var(--ink-soft); }
+
+    .progress-bar {
+      height: 8px; border-radius: 99px;
+      background: var(--rose-light); overflow: hidden; margin-bottom: 14px;
+    }
+
+    .progress-fill {
+      height: 100%; border-radius: 99px;
+      transition: width 0.8s cubic-bezier(.22,1,.36,1);
+    }
+
+    .saving-percent { font-size: 0.8rem; color: var(--ink-soft); margin-bottom: 14px; }
+
+    .saving-add {
+      display: flex; gap: 8px;
+    }
+
+    .add-input {
+      flex: 1; padding: 8px 14px; border-radius: 99px;
+      border: 1.5px solid var(--blush); font-size: 0.85rem;
+      font-family: 'DM Sans', sans-serif; outline: none; color: var(--ink);
+    }
+    .add-input:focus { border-color: var(--rose); }
+
+    /* ── Love Button ── */
+    #love-section { background: var(--white); text-align: center; }
+
+    .love-wrap { max-width: 480px; margin: 0 auto; }
+
+    .big-btn {
+      width: 160px; height: 160px; border-radius: 50%;
+      background: linear-gradient(135deg, var(--rose), #ff8fab);
+      border: none; cursor: pointer;
+      font-size: 3.5rem;
+      box-shadow: 0 10px 40px rgba(232,55,74,0.35),
+                  0 0 0 0 rgba(232,55,74,0.2);
+      transition: transform 0.15s, box-shadow 0.15s;
+      animation: pulse-ring 3s ease infinite;
+    }
+    .big-btn:active { transform: scale(0.92); }
+
+    @keyframes pulse-ring {
+      0%   { box-shadow: 0 10px 40px rgba(232,55,74,0.35), 0 0 0 0 rgba(232,55,74,0.2); }
+      60%  { box-shadow: 0 10px 40px rgba(232,55,74,0.35), 0 0 0 30px rgba(232,55,74,0); }
+      100% { box-shadow: 0 10px 40px rgba(232,55,74,0.35), 0 0 0 0 rgba(232,55,74,0); }
+    }
+
+    #love-counter {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 2.2rem; color: var(--rose);
+      margin-top: 28px;
+    }
+
+    /* ── Footer ── */
+    footer {
+      text-align: center; padding: 60px 20px;
+      background: var(--ink); color: rgba(255,255,255,0.4);
+      font-size: 0.85rem;
+    }
+    footer strong { color: var(--blush); }
+
+    /* ── Shared button ── */
+    .btn-primary {
+      display: inline-flex; align-items: center; gap: 8px;
+      padding: 12px 28px; border-radius: 99px;
+      background: var(--rose); color: #fff; border: none;
+      font-family: 'DM Sans', sans-serif; font-size: 0.88rem; font-weight: 500;
+      cursor: pointer; transition: all 0.2s;
+      box-shadow: 0 4px 20px rgba(232,55,74,0.3);
+    }
+    .btn-primary:hover { background: #c2263a; transform: translateY(-1px); }
+
+    .btn-ghost {
+      display: inline-flex; align-items: center; gap: 8px;
+      padding: 12px 28px; border-radius: 99px;
+      background: transparent; color: var(--ink-soft);
+      border: 1.5px solid var(--blush);
+      font-family: 'DM Sans', sans-serif; font-size: 0.88rem;
+      cursor: pointer; transition: all 0.2s;
+    }
+    .btn-ghost:hover { border-color: var(--rose); color: var(--rose); }
+
+    /* ── Modal ── */
+    .modal-overlay {
+      display: none; position: fixed; inset: 0; z-index: 800;
+      background: rgba(45,27,36,0.6); backdrop-filter: blur(4px);
+      align-items: center; justify-content: center;
+    }
+    .modal-overlay.open { display: flex; }
+
+    .modal {
+      background: var(--white); border-radius: 24px;
+      padding: 36px; width: 90%; max-width: 480px;
+      box-shadow: 0 30px 80px rgba(45,27,36,0.25);
+      animation: fadeUp 0.3s ease;
+    }
+
+    .modal h3 {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 1.8rem; margin-bottom: 20px; color: var(--ink);
+    }
+
+    .modal-field { margin-bottom: 14px; }
+    .modal-label { font-size: 0.78rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--ink-soft); margin-bottom: 6px; display: block; }
+    .modal-input, .modal-textarea, .modal-select {
+      width: 100%; padding: 11px 16px; border-radius: 12px;
+      border: 1.5px solid var(--blush); font-family: 'DM Sans', sans-serif;
+      font-size: 0.9rem; color: var(--ink); outline: none;
+    }
+    .modal-input:focus, .modal-textarea:focus { border-color: var(--rose); }
+    .modal-textarea { min-height: 90px; resize: vertical; }
+
+    .modal-actions { display: flex; gap: 10px; margin-top: 20px; }
+
+    /* ── Heart particles ── */
+    #heart-particles {
+      position: fixed; inset: 0;
+      pointer-events: none; z-index: 999;
+    }
+    .particle {
+      position: absolute; bottom: -20px;
+      animation: floatUp var(--dur) linear forwards;
+      font-size: var(--sz);
+      opacity: 0.9;
+    }
+    @keyframes floatUp {
+      to { transform: translateY(-105vh) translateX(var(--dx)); opacity: 0; }
+    }
+
+    /* ── Toast ── */
+    #toast {
+      position: fixed; bottom: 30px; right: 30px; z-index: 9999;
+      background: var(--ink); color: #fff;
+      padding: 14px 24px; border-radius: 99px;
+      font-size: 0.85rem; box-shadow: 0 8px 30px rgba(0,0,0,0.2);
+      transform: translateY(20px); opacity: 0;
+      transition: all 0.3s; pointer-events: none;
+    }
+    #toast.show { transform: translateY(0); opacity: 1; }
+
+    /* ── Responsive ── */
+    @media (max-width: 600px) {
+      nav { padding: 14px 20px; }
+      .nav-links { gap: 16px; }
+      .nav-links a { font-size: 0.75rem; }
+      section { padding: 70px 16px; }
+      .hero-counter { gap: 24px; }
+    }
+  </style>
+</head>
+<body>
+
+  <div id="heart-particles"></div>
+  <div id="toast"></div>
+
+  <!-- NAV -->
+  <nav>
+    <div class="nav-logo">You & Me 💕</div>
+    <ul class="nav-links">
+      <li><a href="#gallery">Gallery</a></li>
+      <li><a href="#poetry">Poetry</a></li>
+      <li><a href="#dates">Dates</a></li>
+      <li><a href="#savings">Savings</a></li>
+    </ul>
+  </nav>
+
+  <!-- HERO -->
+  <section id="hero">
+    <div class="hero-accent hero-accent-1"></div>
+    <div class="hero-accent hero-accent-2"></div>
+    <div class="hero-since">Together since August 3, 2025</div>
+    <h1>You &amp; <em>Me</em></h1>
+    <p class="hero-sub">Every love story is beautiful, but ours is my favourite.</p>
+    <div class="hero-counter">
+      <div class="counter-block">
+        <div class="counter-num" id="cnt-days">0</div>
+        <div class="counter-label">Days</div>
+      </div>
+      <div class="counter-block">
+        <div class="counter-num" id="cnt-hours">0</div>
+        <div class="counter-label">Hours</div>
+      </div>
+      <div class="counter-block">
+        <div class="counter-num" id="cnt-mins">0</div>
+        <div class="counter-label">Minutes</div>
+      </div>
+    </div>
+    <div class="scroll-cue">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12l7 7 7-7"/></svg>
+      Scroll
+    </div>
+  </section>
+
+  <!-- GALLERY -->
+  <section id="gallery">
+    <div class="section-inner">
+      <div class="section-label">Our Memories</div>
+      <div class="section-title">The Photos That Tell Our Story</div>
+
+      <div class="gallery-upload">
+        <label class="upload-label" for="photoInput">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12l7 7 7-7"/></svg>
+          Upload Photo
+        </label>
+        <input type="file" id="photoInput" accept="image/*" multiple />
+        <input type="text" class="caption-input" id="photoCaption" placeholder="Caption…" />
+        <select class="category-select" id="photoCategory">
+          <option value="memories">Memories</option>
+          <option value="dates">Dates</option>
+          <option value="travel">Travel</option>
+          <option value="selfies">Selfies</option>
+          <option value="random">Random</option>
+        </select>
+        <button class="btn-primary" onclick="uploadPhotos()">Add</button>
+      </div>
+
+      <div class="gallery-controls" id="galleryFilters">
+        <button class="filter-btn active" data-cat="all">All</button>
+        <button class="filter-btn" data-cat="memories">Memories</button>
+        <button class="filter-btn" data-cat="dates">Dates</button>
+        <button class="filter-btn" data-cat="travel">Travel</button>
+        <button class="filter-btn" data-cat="selfies">Selfies</button>
+      </div>
+
+      <div class="photo-grid" id="photoGrid">
+        <div class="photo-placeholder"><span>📷</span>Upload your first memory above!</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- TIMELINE -->
+  <section id="timeline">
+    <div class="section-inner">
+      <div class="section-label">Our Story</div>
+      <div class="section-title">How It All Unfolded</div>
+      <div class="timeline-track">
+        <div class="tl-item">
+          <div class="tl-dot">❤</div>
+          <div class="tl-date">August 03, 2025</div>
+          <div class="tl-title">The Day We Met</div>
+          <div class="tl-body">The lock clicked, our eyes locked, and everything changed.</div>
+        </div>
+        <div class="tl-item" style="animation-delay:0.15s">
+          <div class="tl-dot">💌</div>
+          <div class="tl-date">August 09, 2025</div>
+          <div class="tl-title">Made It Official</div>
+          <div class="tl-body">The easiest "Yes" of my entire life.</div>
+        </div>
+        <div class="tl-item" style="animation-delay:0.3s">
+          <div class="tl-dot">🌟</div>
+          <div class="tl-date">Today</div>
+          <div class="tl-title">Still Going Strong</div>
+          <div class="tl-body">Loving you more with each passing day.</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- POETRY -->
+  <section id="poetry">
+    <div class="section-inner">
+      <div class="section-label">For You</div>
+      <div class="section-title">Words Written in Your Name</div>
+
+      <div class="poem-form">
+        <div class="form-row">
+          <input type="text" class="form-input" id="poemTitle" placeholder="Poem title…" />
+          <input type="text" class="form-input" id="poemAuthor" placeholder="Author (You)" />
+        </div>
+        <textarea class="form-textarea" id="poemBody" placeholder="Write something beautiful…"></textarea>
+        <div style="margin-top:12px;">
+          <button class="btn-primary" onclick="savePoem()">✦ Publish Poem</button>
+        </div>
+      </div>
+
+      <div class="poems-grid" id="poemsGrid">
+        <!-- poems injected here -->
+      </div>
+    </div>
+  </section>
+
+  <!-- DATE SCHEDULE -->
+  <section id="dates">
+    <div class="section-inner">
+      <div class="section-label">Our Plans</div>
+      <div class="section-title">Upcoming Dates &amp; Adventures</div>
+
+      <div style="margin-bottom:24px;">
+        <button class="btn-primary" onclick="openDateModal()">+ Plan a Date</button>
+      </div>
+
+      <div class="dates-grid" id="datesGrid">
+        <!-- dates injected here -->
+      </div>
+    </div>
+  </section>
+
+  <!-- SAVINGS DASHBOARD -->
+  <section id="savings">
+    <div class="section-inner">
+      <div class="section-label">Our Dreams</div>
+      <div class="section-title">Saving Towards Something Beautiful</div>
+
+      <div style="margin-bottom:24px;">
+        <button class="btn-primary" onclick="openSavingModal()">+ New Goal</button>
+      </div>
+
+      <div class="savings-grid" id="savingsGrid">
+        <!-- savings injected here -->
+      </div>
+    </div>
+  </section>
+
+  <!-- LOVE BUTTON -->
+  <section id="love-section">
+    <div class="section-inner" style="text-align:center;">
+      <div class="section-label">A Little Moment</div>
+      <div class="section-title" style="margin-bottom:40px;">Send a Burst of Hearts</div>
+      <div class="love-wrap">
+        <button class="big-btn" onclick="sendLove()">❤️</button>
+        <div id="love-counter">0 Hearts Sent</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer>
+    <p>Made with every bit of love, for <strong>uzzyjaan</strong> 💕</p>
+    <p style="margin-top:8px; font-size:0.75rem;">Always yours.</p>
+  </footer>
+
+  <!-- DATE MODAL -->
+  <div class="modal-overlay" id="dateModal">
+    <div class="modal">
+      <h3>Plan a Date 🌙</h3>
+      <div class="modal-field">
+        <label class="modal-label">Title</label>
+        <input type="text" class="modal-input" id="dateTitle" placeholder="e.g. Rooftop Dinner" />
+      </div>
+      <div class="modal-field">
+        <label class="modal-label">Description</label>
+        <textarea class="modal-textarea" id="dateDesc" placeholder="What are we doing?"></textarea>
+      </div>
+      <div class="modal-field">
+        <label class="modal-label">Date & Time</label>
+        <input type="datetime-local" class="modal-input" id="dateTime" />
+      </div>
+      <div class="modal-field">
+        <label class="modal-label">Location</label>
+        <input type="text" class="modal-input" id="dateLocation" placeholder="Where?" />
+      </div>
+      <div class="modal-field">
+        <label class="modal-label">Emoji</label>
+        <input type="text" class="modal-input" id="dateEmoji" placeholder="💕" maxlength="2" style="max-width:80px;" />
+      </div>
+      <div class="modal-actions">
+        <button class="btn-primary" onclick="saveDate()">Save Date</button>
+        <button class="btn-ghost" onclick="closeDateModal()">Cancel</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- SAVING MODAL -->
+  <div class="modal-overlay" id="savingModal">
+    <div class="modal">
+      <h3>New Savings Goal ✨</h3>
+      <div class="modal-field">
+        <label class="modal-label">Goal Name</label>
+        <input type="text" class="modal-input" id="savingLabel" placeholder="e.g. Dream Trip" />
+      </div>
+      <div class="modal-field">
+        <label class="modal-label">Target Amount (₹)</label>
+        <input type="number" class="modal-input" id="savingTarget" placeholder="50000" />
+      </div>
+      <div class="modal-field">
+        <label class="modal-label">Current Amount (₹)</label>
+        <input type="number" class="modal-input" id="savingCurrent" placeholder="0" />
+      </div>
+      <div class="modal-field">
+        <label class="modal-label">Emoji</label>
+        <input type="text" class="modal-input" id="savingEmoji" placeholder="✈️" maxlength="2" style="max-width:80px;" />
+      </div>
+      <div class="modal-actions">
+        <button class="btn-primary" onclick="saveSaving()">Create Goal</button>
+        <button class="btn-ghost" onclick="closeSavingModal()">Cancel</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // ── Config ─────────────────────────────────────────────────────────────────
+    const API = '/api';   // Nginx proxies /api → backend:3001/api
+    const START_DATE = new Date('2025-08-03T00:00:00');
+
+    // ── Together counter ───────────────────────────────────────────────────────
+    function updateCounter() {
+      const now = new Date();
+      const diff = now - START_DATE;
+      if (diff < 0) { 
+        document.getElementById('cnt-days').textContent = '0';
+        return; 
+      }
+      const days  = Math.floor(diff / 86400000);
+      const hours = Math.floor((diff % 86400000) / 3600000);
+      const mins  = Math.floor((diff % 3600000) / 60000);
+      document.getElementById('cnt-days').textContent  = days;
+      document.getElementById('cnt-hours').textContent = hours;
+      document.getElementById('cnt-mins').textContent  = mins;
+    }
+    updateCounter();
+    setInterval(updateCounter, 30000);
+
+    // ── Toast ──────────────────────────────────────────────────────────────────
+    function toast(msg) {
+      const el = document.getElementById('toast');
+      el.textContent = msg;
+      el.classList.add('show');
+      setTimeout(() => el.classList.remove('show'), 2800);
+    }
+
+    // ── API helper ─────────────────────────────────────────────────────────────
+    async function api(path, opts = {}) {
+      try {
+        const r = await fetch(API + path, {
+          headers: { 'Content-Type': 'application/json' },
+          ...opts
+        });
+        return await r.json();
+      } catch {
+        toast('⚠️ Could not reach backend — is it running?');
+        return null;
+      }
+    }
+
+    // ── GALLERY ────────────────────────────────────────────────────────────────
+    let allPhotos = [];
+    let activeFilter = 'all';
+
+    async function loadPhotos() {
+      const data = await api('/photos');
+      if (!data) return;
+      allPhotos = data;
+      renderPhotos();
+    }
+
+    function renderPhotos() {
+      const grid = document.getElementById('photoGrid');
+      const filtered = activeFilter === 'all' ? allPhotos : allPhotos.filter(p => p.category === activeFilter);
+      if (filtered.length === 0) {
+        grid.innerHTML = '<div class="photo-placeholder"><span>📷</span>No photos here yet — upload some!</div>';
+        return;
+      }
+      grid.innerHTML = filtered.map(p => `
+        <div class="photo-card" id="photo-${p.id}">
+	  <img src="/photos/${p.filename}" alt="${p.caption || ''}" loading="lazy" />
+	  <div class="photo-caption">${p.caption || p.category}</div>
+          <button class="photo-delete" onclick="deletePhoto(${p.id})">✕</button>
+        </div>
+      `).join('');
+    }
+
+    document.getElementById('galleryFilters').addEventListener('click', e => {
+      if (!e.target.classList.contains('filter-btn')) return;
+      document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+      e.target.classList.add('active');
+      activeFilter = e.target.dataset.cat;
+      renderPhotos();
+    });
+
+    async function uploadPhotos() {
+      const input  = document.getElementById('photoInput');
+      const caption = document.getElementById('photoCaption').value;
+      const category = document.getElementById('photoCategory').value;
+      if (!input.files.length) { toast('Pick a photo first!'); return; }
+
+      for (const file of input.files) {
+        const fd = new FormData();
+        fd.append('photo', file);
+        fd.append('caption', caption);
+        fd.append('category', category);
+        try {
+          const r = await fetch(API + '/photos', { method: 'POST', body: fd });
+          const data = await r.json();
+          allPhotos.unshift(data);
+        } catch { toast('Upload failed'); }
+      }
+      input.value = '';
+      document.getElementById('photoCaption').value = '';
+      renderPhotos();
+      toast('📸 Photo added!');
+    }
+
+    async function deletePhoto(id) {
+      if (!confirm('Remove this photo?')) return;
+      await api('/photos/' + id, { method: 'DELETE' });
+      allPhotos = allPhotos.filter(p => p.id !== id);
+      renderPhotos();
+    }
+
+    // ── POETRY ─────────────────────────────────────────────────────────────────
+    async function loadPoems() {
+      const data = await api('/poems');
+      if (!data) return;
+      renderPoems(data);
+    }
+
+    function renderPoems(poems) {
+      const grid = document.getElementById('poemsGrid');
+      if (!poems.length) {
+        grid.innerHTML = '<p style="color:rgba(255,255,255,0.4); font-style:italic;">Write your first poem above…</p>';
+        return;
+      }
+      grid.innerHTML = poems.map(p => `
+        <div class="poem-card" id="poem-${p.id}">
+          <div class="poem-title">${p.title}</div>
+          <div class="poem-body">${p.body}</div>
+          <div class="poem-author">— ${p.author}</div>
+          <div class="poem-actions">
+            <button class="poem-btn delete" onclick="deletePoem(${p.id})">Delete</button>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    async function savePoem() {
+      const title  = document.getElementById('poemTitle').value.trim();
+      const body   = document.getElementById('poemBody').value.trim();
+      const author = document.getElementById('poemAuthor').value.trim() || 'You';
+      if (!title || !body) { toast('Give your poem a title and some words ✨'); return; }
+      const data = await api('/poems', { method: 'POST', body: JSON.stringify({ title, body, author }) });
+      if (data) {
+        document.getElementById('poemTitle').value = '';
+        document.getElementById('poemBody').value  = '';
+        await loadPoems();
+        toast('✦ Poem published!');
+      }
+    }
+
+    async function deletePoem(id) {
+      if (!confirm('Delete this poem?')) return;
+      await api('/poems/' + id, { method: 'DELETE' });
+      await loadPoems();
+    }
+
+    // ── DATE SCHEDULE ──────────────────────────────────────────────────────────
+    function openDateModal() { document.getElementById('dateModal').classList.add('open'); }
+    function closeDateModal() { document.getElementById('dateModal').classList.remove('open'); }
+
+    function countdown(dateStr) {
+      const target = new Date(dateStr);
+      const diff = target - new Date();
+      if (diff <= 0) return '✅ Done!';
+      const d = Math.floor(diff / 86400000);
+      const h = Math.floor((diff % 86400000) / 3600000);
+      if (d > 0) return `in ${d}d ${h}h`;
+      return `in ${h}h`;
+    }
+
+    function renderDates(dates) {
+      const grid = document.getElementById('datesGrid');
+      if (!dates.length) {
+        grid.innerHTML = '<p style="color:var(--ink-soft); font-style:italic;">No dates planned yet — add one!</p>';
+        return;
+      }
+      grid.innerHTML = dates.map(d => `
+        <div class="date-card ${d.done ? 'done' : ''}" id="date-${d.id}">
+          <span class="date-emoji">${d.emoji}</span>
+          <div class="date-title">${d.title}</div>
+          <div class="date-desc">${d.description || ''}</div>
+          <div class="date-meta">
+            <span>📅 ${new Date(d.date_time).toLocaleDateString('en-IN', { day:'numeric', month:'long', year:'numeric' })}</span>
+            ${d.location ? `<span>📍 ${d.location}</span>` : ''}
+          </div>
+          ${!d.done ? `<span class="date-countdown">${countdown(d.date_time)}</span>` : ''}
+          <div class="date-actions">
+            <button class="date-btn ${d.done?'':'done-btn'}" onclick="toggleDate(${d.id})">${d.done ? 'Unmark' : '✓ Done'}</button>
+            <button class="date-btn" onclick="deleteDate(${d.id})">Delete</button>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    async function loadDates() {
+      const data = await api('/dates');
+      if (data) renderDates(data);
+    }
+
+    async function saveDate() {
+      const title    = document.getElementById('dateTitle').value.trim();
+      const desc     = document.getElementById('dateDesc').value.trim();
+      const dateTime = document.getElementById('dateTime').value;
+      const location = document.getElementById('dateLocation').value.trim();
+      const emoji    = document.getElementById('dateEmoji').value.trim() || '💕';
+      if (!title || !dateTime) { toast('Title and date are required!'); return; }
+      await api('/dates', { method: 'POST', body: JSON.stringify({ title, description: desc, date_time: dateTime, location, emoji }) });
+      closeDateModal();
+      document.getElementById('dateTitle').value = '';
+      document.getElementById('dateDesc').value  = '';
+      document.getElementById('dateTime').value  = '';
+      document.getElementById('dateLocation').value = '';
+      await loadDates();
+      toast('🗓️ Date planned!');
+    }
+
+    async function toggleDate(id) {
+      await api('/dates/' + id + '/toggle', { method: 'PATCH' });
+      await loadDates();
+    }
+
+    async function deleteDate(id) {
+      if (!confirm('Remove this date?')) return;
+      await api('/dates/' + id, { method: 'DELETE' });
+      await loadDates();
+    }
+
+    // ── SAVINGS ────────────────────────────────────────────────────────────────
+    function openSavingModal() { document.getElementById('savingModal').classList.add('open'); }
+    function closeSavingModal() { document.getElementById('savingModal').classList.remove('open'); }
+
+    function renderSavings(savings) {
+      const grid = document.getElementById('savingsGrid');
+      if (!savings.length) {
+        grid.innerHTML = '<p style="color:var(--ink-soft); font-style:italic;">No goals yet — add one!</p>';
+        return;
+      }
+      grid.innerHTML = savings.map(s => {
+        const pct = Math.min(100, Math.round((s.current / s.target) * 100));
+        return `
+          <div class="saving-card" id="saving-${s.id}">
+            <span class="saving-emoji">${s.emoji}</span>
+            <div class="saving-label">${s.label}</div>
+            <div class="saving-amounts">
+              <div class="saving-current">₹${Number(s.current).toLocaleString('en-IN')}</div>
+              <div class="saving-target">of ₹${Number(s.target).toLocaleString('en-IN')}</div>
+            </div>
+            <div class="progress-bar">
+              <div class="progress-fill" style="width:${pct}%; background:${s.color}"></div>
+            </div>
+            <div class="saving-percent">${pct}% saved</div>
+            <div class="saving-add">
+              <input type="number" class="add-input" id="add-${s.id}" placeholder="Add ₹…" />
+              <button class="btn-primary" onclick="addToSaving(${s.id}, ${s.current})" style="padding:8px 18px;">+</button>
+              <button class="btn-ghost" onclick="deleteSaving(${s.id})" style="padding:8px 14px; font-size:0.75rem;">✕</button>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    async function loadSavings() {
+      const data = await api('/savings');
+      if (data) renderSavings(data);
+    }
+
+    async function saveSaving() {
+      const label   = document.getElementById('savingLabel').value.trim();
+      const target  = parseFloat(document.getElementById('savingTarget').value);
+      const current = parseFloat(document.getElementById('savingCurrent').value) || 0;
+      const emoji   = document.getElementById('savingEmoji').value.trim() || '💰';
+      const colors  = ['#e8374a','#9b5de5','#f4a261','#06d6a0','#118ab2'];
+      const color   = colors[Math.floor(Math.random() * colors.length)];
+      if (!label || !target) { toast('Label and target are required!'); return; }
+      await api('/savings', { method: 'POST', body: JSON.stringify({ label, target, current, emoji, color }) });
+      closeSavingModal();
+      document.getElementById('savingLabel').value   = '';
+      document.getElementById('savingTarget').value  = '';
+      document.getElementById('savingCurrent').value = '';
+      await loadSavings();
+      toast('💰 Goal created!');
+    }
+
+    async function addToSaving(id, current) {
+      const input = document.getElementById('add-' + id);
+      const amount = parseFloat(input.value);
+      if (!amount || amount <= 0) { toast('Enter an amount first'); return; }
+      await api('/savings/' + id, { method: 'PATCH', body: JSON.stringify({ current: current + amount }) });
+      input.value = '';
+      await loadSavings();
+      toast(`₹${amount.toLocaleString('en-IN')} added! 🎉`);
+    }
+
+    async function deleteSaving(id) {
+      if (!confirm('Delete this goal?')) return;
+      await api('/savings/' + id, { method: 'DELETE' });
+      await loadSavings();
+    }
+
+    // ── LOVE BUTTON ────────────────────────────────────────────────────────────
+    let loveCount = 0;
+    function sendLove() {
+      loveCount++;
+      document.getElementById('love-counter').textContent = `${loveCount} Heart${loveCount !== 1 ? 's' : ''} Sent`;
+      for (let i = 0; i < 5; i++) setTimeout(createHeart, i * 80);
+    }
+
+    function createHeart() {
+      const c = document.getElementById('heart-particles');
+      const el = document.createElement('div');
+      el.classList.add('particle');
+      const emojis = ['❤️','💕','💗','💓','💖','🌹'];
+      el.textContent = emojis[Math.floor(Math.random() * emojis.length)];
+      const dur = (Math.random() * 2 + 2).toFixed(1);
+      const dx  = (Math.random() * 100 - 50).toFixed(0) + 'px';
+      el.style.cssText = `left:${Math.random()*100}vw; --dur:${dur}s; --sz:${Math.random()*16+12}px; --dx:${dx}`;
+      c.appendChild(el);
+      setTimeout(() => el.remove(), dur * 1000);
+    }
+
+    // ── Close modals on overlay click ──────────────────────────────────────────
+    document.querySelectorAll('.modal-overlay').forEach(o => {
+      o.addEventListener('click', e => { if (e.target === o) o.classList.remove('open'); });
+    });
+
+    // ── Init ───────────────────────────────────────────────────────────────────
+    loadPhotos();
+    loadPoems();
+    loadDates();
+    loadSavings();
+  </script>
+</body>
+</html>
