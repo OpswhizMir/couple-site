@@ -1,9 +1,11 @@
-# 💕 uzzy.ddns.net — Our Love Site
 
 A private, beautiful website built as a gesture of love. Features a photo gallery, poetry section, date planner, and savings dashboard — all running on a Dockerized stack hosted on AWS EC2.
 
 ---
-
+## 🌐 Live Site
+```
+https://uzzy.ddns.net
+```
 
 
 ## 🏗️ Architecture
