@@ -35,7 +35,7 @@ Browser
 | Web Server | Nginx Alpine | Reverse proxy + static files |
 | Containers | Docker + Docker Compose | Orchestration |
 | Cloud | AWS EC2 t2.micro | Hosting (free tier) |
-| DNS | No-IP (uzzy.ddns.net) | Free domain |
+| DNS | No-IP (u**zy.ddns.net) | Free domain |
 | SSL | Let's Encrypt (Certbot) | Free HTTPS |
 
 ---
